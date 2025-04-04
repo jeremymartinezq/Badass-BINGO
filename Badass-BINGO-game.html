@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Badass BINGO!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        header {
+            background-color: rgba(0, 0, 0, 0.5);
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 40px;
+            text-transform: uppercase;
+            color: #f0c929;
+            text-shadow: 0 0 10px rgba(240, 201, 41, 0.7);
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+        }
+        
+        .top-section {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            gap: 20px;
+        }
+        
+        .vertical-divider {
+            width: 3px;
+            height: 400px;
+            background: linear-gradient(180deg, transparent, #f0c929, transparent);
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(240, 201, 41, 0.5);
+        }
+        
+        .balls-container {
+            position: relative;
+            width: 450px;
+            height: 400px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            margin: 0;
+        }
+        
+        #ballsCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .game-controls {
+            width: 250px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin: 0;
+        }
+        
+        .game-controls h2 {
+            margin-top: 0;
+            color: #f0c929;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #f0c929, #e8505b);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 25px;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button:disabled {
+            background: linear-gradient(135deg, #666, #999);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .current-ball {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .ball-display {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, #f0c929);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #16213e;
+            box-shadow: 0 0 15px rgba(240, 201, 41, 0.7);
+            margin: 10px 0;
+        }
+        
+        .bingo-board {
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .bingo-card {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .bingo-card th {
+            background-color: #f0c929;
+            color: #16213e;
+            font-size: 28px;
+            padding: 10px 0;
+        }
+        
+        .bingo-card td {
+            width: 20%;
+            height: 80px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #16213e;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .bingo-card td:hover {
+            background-color: #f8f8f8;
+        }
+        
+        .bingo-card td.free {
+            background-color: #f0c929;
+        }
+        
+        .bingo-card td.marked:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: rgba(232, 80, 91, 0.7);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .called-numbers {
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .called-numbers h2 {
+            color: #f0c929;
+            text-align: center;
+            margin-top: 0;
+        }
+        
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            gap: 5px;
+        }
+        
+        .number-cell {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background-color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .number-cell.called {
+            background-color: #f0c929;
+            color: #16213e;
+            box-shadow: 0 0 5px rgba(240, 201, 41, 0.7);
+        }
+        
+        .bingo-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        .bingo-alert.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .bingo-alert h1 {
+            font-size: 80px;
+            color: #f0c929;
+            text-shadow: 0 0 20px rgba(240, 201, 41, 0.7);
+            animation: pulse 1s infinite alternate;
+        }
+        
+        .bingo-alert button {
+            padding: 15px 40px;
+            font-size: 24px;
+            margin-top: 40px;
+        }
+        
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+                text-shadow: 0 0 20px rgba(240, 201, 41, 0.7);
+            }
+            to {
+                transform: scale(1.05);
+                text-shadow: 0 0 30px rgba(240, 201, 41, 1);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .top-section {
+                flex-direction: column;
+            }
+            
+            .vertical-divider {
+                width: 80%;
+                height: 3px;
+                background: linear-gradient(90deg, transparent, #f0c929, transparent);
+            }
+            
+            .balls-container, .game-controls {
+                width: 90%;
+            }
+            
+            .balls-container {
+                height: 300px;
+            }
+            
+            .numbers-grid {
+                grid-template-columns: repeat(10, 1fr);
+            }
+            
+            .bingo-card td {
+                height: 60px;
+                font-size: 18px;
+            }
+            
+            .bingo-card td.marked:after {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Badass BINGO!</h1>
+    </header>
+    
+    <div class="game-container">
+        <div class="top-section">
+            <div class="balls-container">
+                <canvas id="ballsCanvas" width="400" height="400"></canvas>
+            </div>
+            
+            <div class="vertical-divider"></div>
+            
+            <div class="game-controls">
+                <h2>Game Controls</h2>
+                <button id="newGameBtn">New Game</button>
+                <button id="drawBallBtn">Draw Ball</button>
+                <button id="autoBtnGame" disabled>Auto Play</button>
+                
+                <div class="current-ball">
+                    <p>Current Ball:</p>
+                    <div class="ball-display" id="currentBall">--</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bingo-board">
+            <table class="bingo-card" id="bingoCard">
+                <thead>
+                    <tr>
+                        <th>B</th>
+                        <th>I</th>
+                        <th>N</th>
+                        <th>G</th>
+                        <th>O</th>
+                    </tr>
+                </thead>
+                <tbody id="cardBody">
+                    <!-- Bingo card will be generated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="called-numbers">
+            <h2>Called Numbers</h2>
+            <div class="numbers-grid" id="numbersGrid">
+                <!-- Called numbers grid will be generated here -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="bingo-alert" id="bingoAlert">
+        <h1>BINGO!</h1>
+        <button id="newGameAfterWinBtn">New Game</button>
+    </div>
+    
+    <script>
+        // Game variables
+        const BALL_COUNT = 75;
+        const COLUMNS = {
+            'B': {min: 1, max: 15},
+            'I': {min: 16, max: 30},
+            'N': {min: 31, max: 45},
+            'G': {min: 46, max: 60},
+            'O': {min: 61, max: 75}
+        };
+        
+        let calledNumbers = [];
+        let playerCard = [];
+        let autoPlayInterval = null;
+        
+        // Initialize balls animation
+        const ballsCanvas = document.getElementById('ballsCanvas');
+        const ballsCtx = ballsCanvas.getContext('2d');
+        const balls = [];
+        const ballSize = 40;
+        const ballCount = 20;
+        const letters = ['B', 'I', 'N', 'G', 'O'];
+        const ballColors = [
+            '#f0c929', // Yellow
+            '#e8505b', // Red
+            '#3a86ff', // Blue
+            '#4cc9f0', // Light Blue
+            '#8338ec'  // Purple
+        ];
+        
+        // Ball class for animation
+        class Ball {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * ballsCanvas.width;
+                this.y = Math.random() * ballsCanvas.height;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = (Math.random() - 0.5) * 4;
+                // Ensure minimum initial velocity
+                while (Math.abs(this.vx) < 1 || Math.abs(this.vy) < 1) {
+                    this.vx = (Math.random() - 0.5) * 4;
+                    this.vy = (Math.random() - 0.5) * 4;
+                }
+                this.color = ballColors[Math.floor(Math.random() * ballColors.length)];
+                this.number = Math.floor(Math.random() * BALL_COUNT) + 1;
+                this.letter = letters[Math.floor(this.number / 16)];
+                this.size = ballSize * (0.7 + Math.random() * 0.3);
+            }
+            
+            update() {
+                // Update position
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Bounce off walls with consistent speed
+                if (this.x < this.size/2) {
+                    this.x = this.size/2;
+                    this.vx = Math.abs(this.vx); // Simple direction reversal without acceleration
+                } else if (this.x > ballsCanvas.width - this.size/2) {
+                    this.x = ballsCanvas.width - this.size/2;
+                    this.vx = -Math.abs(this.vx); // Simple direction reversal without acceleration
+                }
+                
+                if (this.y < this.size/2) {
+                    this.y = this.size/2;
+                    this.vy = Math.abs(this.vy); // Simple direction reversal without acceleration
+                } else if (this.y > ballsCanvas.height - this.size/2) {
+                    this.y = ballsCanvas.height - this.size/2;
+                    this.vy = -Math.abs(this.vy); // Simple direction reversal without acceleration
+                }
+                
+                // Maintain consistent speed
+                const minVelocity = 2;
+                const maxVelocity = 4;
+                
+                // Calculate current speed
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                
+                // If speed is outside our desired range, normalize it
+                if (speed < minVelocity || speed > maxVelocity) {
+                    const targetSpeed = speed < minVelocity ? minVelocity : maxVelocity;
+                    const scale = targetSpeed / speed;
+                    this.vx *= scale;
+                    this.vy *= scale;
+                }
+                
+                // Add very slight random variation to prevent predictable patterns
+                if (Math.random() < 0.02) {
+                    this.vx += (Math.random() - 0.5) * 0.2;
+                    this.vy += (Math.random() - 0.5) * 0.2;
+                }
+            }
+            
+            draw() {
+                // Ball
+                ballsCtx.beginPath();
+                const gradient = ballsCtx.createRadialGradient(
+                    this.x - this.size * 0.3, this.y - this.size * 0.3, 0,
+                    this.x, this.y, this.size
+                );
+                gradient.addColorStop(0, '#ffffff');
+                gradient.addColorStop(1, this.color);
+                ballsCtx.fillStyle = gradient;
+                ballsCtx.arc(this.x, this.y, this.size/2, 0, Math.PI * 2);
+                ballsCtx.fill();
+                
+                // Text
+                ballsCtx.font = `bold ${this.size/3}px Arial`;
+                ballsCtx.textAlign = 'center';
+                ballsCtx.textBaseline = 'middle';
+                ballsCtx.fillStyle = '#16213e';
+                ballsCtx.fillText(`${this.letter}${this.number}`, this.x, this.y);
+            }
+        }
+        
+        // Initialize balls
+        for (let i = 0; i < ballCount; i++) {
+            balls.push(new Ball());
+        }
+        
+        // Animation loop for balls
+        function animateBalls() {
+            ballsCtx.clearRect(0, 0, ballsCanvas.width, ballsCanvas.height);
+            
+            balls.forEach(ball => {
+                ball.update();
+                ball.draw();
+            });
+            
+            requestAnimationFrame(animateBalls);
+        }
+        
+        // Generate random number within a range (inclusive)
+        function getRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        // Get array of numbers from a specific column
+        function getColumnNumbers(letter, count, exclude = []) {
+            const range = COLUMNS[letter];
+            const numbers = [];
+            
+            while (numbers.length < count) {
+                const num = getRandomNumber(range.min, range.max);
+                if (!numbers.includes(num) && !exclude.includes(num)) {
+                    numbers.push(num);
+                }
+            }
+            
+            return numbers;
+        }
+        
+        // Generate player's bingo card
+        function generateBingoCard() {
+            const card = [
+                [], // B column
+                [], // I column
+                [], // N column
+                [], // G column
+                []  // O column
+            ];
+            
+            // Fill columns B, I, G, O with 5 numbers each
+            const columnLetters = Object.keys(COLUMNS);
+            for (let i = 0; i < columnLetters.length; i++) {
+                if (i === 2) continue; // Skip N for now (middle column)
+                
+                const letter = columnLetters[i];
+                card[i] = getColumnNumbers(letter, 5);
+            }
+            
+            // Fill N column with 4 numbers (leaving space for FREE)
+            card[2] = getColumnNumbers('N', 4);
+            
+            return card;
+        }
+        
+        // Render the bingo card on the page
+        function renderBingoCard() {
+            const cardBody = document.getElementById('cardBody');
+            cardBody.innerHTML = '';
+            
+            // For each row
+            for (let row = 0; row < 5; row++) {
+                const tr = document.createElement('tr');
+                
+                // For each column
+                for (let col = 0; col < 5; col++) {
+                    const td = document.createElement('td');
+                    
+                    // Middle cell is free
+                    if (row === 2 && col === 2) {
+                        td.textContent = 'FREE';
+                        td.classList.add('free');
+                        td.classList.add('marked');
+                    } else {
+                        // Get value from card
+                        let cellValue;
+                        if (col === 2 && row > 2) { // Adjust for free space in middle
+                            cellValue = playerCard[col][row - 1];
+                        } else if (col === 2) { // N column, before free space
+                            cellValue = playerCard[col][row];
+                        } else {
+                            cellValue = playerCard[col][row];
+                        }
+                        
+                        td.textContent = cellValue;
+                        
+                        // Mark if number has been called
+                        if (calledNumbers.includes(cellValue)) {
+                            td.classList.add('marked');
+                        }
+                        
+                        // Add click handler for manual marking
+                        td.addEventListener('click', function() {
+                            if (calledNumbers.includes(parseInt(this.textContent))) {
+                                this.classList.add('marked');
+                                checkForBingo();
+                            }
+                        });
+                    }
+                    
+                    tr.appendChild(td);
+                }
+                
+                cardBody.appendChild(tr);
+            }
+        }
+        
+        // Generate the called numbers grid
+        function generateNumbersGrid() {
+            const grid = document.getElementById('numbersGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= BALL_COUNT; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('number-cell');
+                cell.id = `number-${i}`;
+                cell.textContent = i;
+                
+                if (calledNumbers.includes(i)) {
+                    cell.classList.add('called');
+                }
+                
+                grid.appendChild(cell);
+            }
+        }
+        
+        // Draw a ball
+        function drawBall() {
+            // Don't draw if all balls have been drawn
+            if (calledNumbers.length >= BALL_COUNT) {
+                alert("All balls have been drawn!");
+                return;
+            }
+            
+            // Get a random number that hasn't been called yet
+            let number;
+            do {
+                number = Math.floor(Math.random() * BALL_COUNT) + 1;
+            } while (calledNumbers.includes(number));
+            
+            // Add to called numbers
+            calledNumbers.push(number);
+            
+            // Update UI
+            const currentBall = document.getElementById('currentBall');
+            const letterIndex = Math.floor((number - 1) / 15);
+            const letter = letters[letterIndex];
+            currentBall.textContent = `${letter}${number}`;
+            
+            // Update called numbers grid
+            const cell = document.getElementById(`number-${number}`);
+            if (cell) {
+                cell.classList.add('called');
+            }
+            
+            // Auto-mark numbers on card
+            markNumberOnCard(number);
+            
+            // Check for BINGO
+            checkForBingo();
+            
+            // Enable auto-play button after first ball is drawn
+            document.getElementById('autoBtnGame').disabled = false;
+        }
+        
+        // Mark a number on the card
+        function markNumberOnCard(number) {
+            const card = document.getElementById('cardBody');
+            const cells = card.querySelectorAll('td');
+            
+            cells.forEach(cell => {
+                if (cell.textContent === number.toString()) {
+                    cell.classList.add('marked');
+                }
+            });
+        }
+        
+        // Check if player has a BINGO
+        function checkForBingo() {
+            const card = document.getElementById('cardBody');
+            const rows = card.querySelectorAll('tr');
+            let hasBingo = false;
+            
+            // Check rows
+            for (let i = 0; i < 5; i++) {
+                const cells = rows[i].querySelectorAll('td');
+                if ([...cells].every(cell => cell.classList.contains('marked'))) {
+                    hasBingo = true;
+                    break;
+                }
+            }
+            
+            // Check columns
+            if (!hasBingo) {
+                for (let col = 0; col < 5; col++) {
+                    let markedCount = 0;
+                    for (let row = 0; row < 5; row++) {
+                        const cell = rows[row].querySelectorAll('td')[col];
+                        if (cell.classList.contains('marked')) {
+                            markedCount++;
+                        }
+                    }
+                    if (markedCount === 5) {
+                        hasBingo = true;
+                        break;
+                    }
+                }
+            }
+            
+            // Check diagonals
+            if (!hasBingo) {
+                // Top-left to bottom-right
+                let markedCount = 0;
+                for (let i = 0; i < 5; i++) {
+                    const cell = rows[i].querySelectorAll('td')[i];
+                    if (cell.classList.contains('marked')) {
+                        markedCount++;
+                    }
+                }
+                if (markedCount === 5) {
+                    hasBingo = true;
+                }
+            }
+            
+            if (!hasBingo) {
+                // Top-right to bottom-left
+                let markedCount = 0;
+                for (let i = 0; i < 5; i++) {
+                    const cell = rows[i].querySelectorAll('td')[4 - i];
+                    if (cell.classList.contains('marked')) {
+                        markedCount++;
+                    }
+                }
+                if (markedCount === 5) {
+                    hasBingo = true;
+                }
+            }
+            
+            if (hasBingo) {
+                stopAutoPlay();
+                document.getElementById('bingoAlert').classList.add('show');
+            }
+            
+            return hasBingo;
+        }
+        
+        // Start auto-play
+        function startAutoPlay() {
+            if (autoPlayInterval) return;
+            
+            autoPlayInterval = setInterval(() => {
+                drawBall();
+                
+                // Stop if all balls have been drawn
+                if (calledNumbers.length >= BALL_COUNT) {
+                    stopAutoPlay();
+                }
+            }, 3000);
+            
+            document.getElementById('autoBtnGame').textContent = 'Stop Auto Play';
+        }
+        
+        // Stop auto-play
+        function stopAutoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                document.getElementById('autoBtnGame').textContent = 'Auto Play';
+            }
+        }
+        
+        // Toggle auto-play
+        function toggleAutoPlay() {
+            if (autoPlayInterval) {
+                stopAutoPlay();
+            } else {
+                startAutoPlay();
+            }
+        }
+        
+        // Start new game
+        function startNewGame() {
+            calledNumbers = [];
+            playerCard = generateBingoCard();
+            
+            stopAutoPlay();
+            document.getElementById('autoBtnGame').disabled = true;
+            document.getElementById('currentBall').textContent = '--';
+            document.getElementById('bingoAlert').classList.remove('show');
+            
+            renderBingoCard();
+            generateNumbersGrid();
+        }
+        
+        // Initialize game on page load
+        window.onload = function() {
+            // Start balls animation
+            animateBalls();
+            
+            // Initialize game
+            startNewGame();
+            
+            // Set up event listeners
+            document.getElementById('newGameBtn').addEventListener('click', startNewGame);
+            document.getElementById('drawBallBtn').addEventListener('click', drawBall);
+            document.getElementById('autoBtnGame').addEventListener('click', toggleAutoPlay);
+            document.getElementById('newGameAfterWinBtn').addEventListener('click', startNewGame);
+            
+            // Handle window resize for responsive canvas
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    ballsCanvas.width = ballsCanvas.offsetWidth;
+                    ballsCanvas.height = ballsCanvas.offsetWidth;
+                } else {
+                    ballsCanvas.width = 400;
+                    ballsCanvas.height = 400;
+                }
+            });
+            
+            // Trigger resize once to set initial size
+            window.dispatchEvent(new Event('resize'));
+        };
+    </script>
+</body>
+</html>
