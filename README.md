@@ -70,10 +70,6 @@ The game works best in modern browsers that support HTML5 and CSS3 features:
 - Safari
 - Edge
 
-## Contributing
-
-Feel free to fork this project and make your own modifications. Pull requests for improvements are welcome! Enjoy playing Badass BINGO!
-
 ## License
 
 This project is open source and available for personal and educational use.
