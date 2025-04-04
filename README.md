@@ -2,6 +2,13 @@
 
 An interactive and visually stunning BINGO game built with modern web technologies. This game features a sleek design, smooth animations, and engaging gameplay mechanics.
 
+## Design
+<img width="946" alt="Screenshot 2025-04-03 225735" src="https://github.com/user-attachments/assets/1559928e-ead0-4880-979a-93a2bec2004f" />
+<img width="947" alt="Screenshot 2025-04-03 221305" src="https://github.com/user-attachments/assets/ba05ed32-8459-444e-8c12-b1354cccf62d" />
+<img width="949" alt="Screenshot 2025-04-03 221733" src="https://github.com/user-attachments/assets/d43677c8-2d9b-4817-b916-6628077ba0d0" />
+<img width="948" alt="Screenshot 2025-04-03 221330" src="https://github.com/user-attachments/assets/f40e22fa-06d0-4541-8602-c9df9a488616" />
+
+
 ## Features
 
 - Modern, gradient-based UI design with smooth animations
